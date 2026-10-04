@@ -13,11 +13,24 @@ export const App: React.FC = () => {
   const [hasMore, setHasMore] = useState<boolean>(true);
   const infiniteScrollRef = useRef<HTMLDivElement | null>(null);
 
-  // Anti-Pattern 4 (v1): Heavy synchronous task blocking the main thread during initial mount
+  // Fixed: Defer analytics initialization off the initial render path to eliminate main-thread blocking
   useEffect(() => {
-    const start = performance.now();
-    while (performance.now() - start < 600) {
-      // Synchronous blocking loop simulating un-deferred heavy analytics/tracking bootstrap
+    const initializeAnalytics = () => {
+      console.log("[Analytics] Initialized in deferred background task");
+    };
+
+    if (
+      "scheduler" in window &&
+      typeof (window as unknown as { scheduler?: { postTask: (cb: () => void, opts: { priority: string }) => void } })
+        .scheduler?.postTask === "function"
+    ) {
+      (
+        window as unknown as { scheduler: { postTask: (cb: () => void, opts: { priority: string }) => void } }
+      ).scheduler.postTask(initializeAnalytics, { priority: "background" });
+    } else if ("requestIdleCallback" in window) {
+      (window as unknown as { requestIdleCallback: (cb: () => void) => number }).requestIdleCallback(initializeAnalytics);
+    } else {
+      setTimeout(initializeAnalytics, 0);
     }
   }, []);
 
