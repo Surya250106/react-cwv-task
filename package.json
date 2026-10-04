@@ -10,7 +10,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "lodash": "^4.18.1",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "rollup-plugin-visualizer": "^7.1.1",
@@ -18,7 +17,6 @@
     "web-vitals": "^6.2.2"
   },
   "devDependencies": {
-    "@types/lodash": "^4.17.25",
     "@types/node": "^24.13.3",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.7",
