@@ -29,8 +29,10 @@ export const ArticleGrid: React.FC<ArticleGridProps> = ({ articles }) => {
 
   return (
     <section className="article-feed-section" aria-label="Latest Articles Feed">
-      {/* Anti-Pattern 3 (v1): No reserved space for dynamically injected banner */}
-      {showBanner && <AdBanner />}
+      {/* Fixed: Reserved layout space for delayed advertisement to prevent CLS */}
+      <div className="ad-banner-slot" style={{ minHeight: 90 }}>
+        {showBanner && <AdBanner />}
+      </div>
 
       <div className="article-grid">
         {sortedArticles.map((article) => (
