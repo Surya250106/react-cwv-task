@@ -5,13 +5,22 @@ interface ArticleCardProps {
   article: Article;
 }
 
+const resolveAssetUrl = (url: string) => {
+  if (url.startsWith("/")) {
+    const base = import.meta.env.BASE_URL;
+    const cleanBase = base.endsWith("/") ? base : `${base}/`;
+    return `${cleanBase}${url.slice(1)}`;
+  }
+  return url;
+};
+
 export const ArticleCard: React.FC<ArticleCardProps> = ({ article }) => {
   return (
     <article className="article-card" id={`article-${article.id}`}>
       <div className="article-thumbnail-container">
         {/* Fixed: Intrinsic width and height to prevent CLS */}
         <img
-          src={article.thumbnail}
+          src={resolveAssetUrl(article.thumbnail)}
           alt={article.title}
           width={800}
           height={500}
@@ -37,7 +46,7 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article }) => {
           <div className="author-container">
             {/* Fixed: Intrinsic width and height to prevent CLS */}
             <img
-              src={article.author.avatar}
+              src={resolveAssetUrl(article.author.avatar)}
               alt={article.author.name}
               width={36}
               height={36}

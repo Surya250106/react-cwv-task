@@ -17,15 +17,19 @@ export const ArticleGrid: React.FC<ArticleGridProps> = ({ articles }) => {
     return () => clearTimeout(timer);
   }, []);
 
-  // Fixed: Native JavaScript sorting, eliminating entire Lodash dependency
-  const sortedArticles = [...articles].sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-  );
+  // Fixed: Native JavaScript sorting with safe invalid date fallback, eliminating Lodash dependency
+  const sortedArticles = [...articles].sort((a, b) => {
+    const timeA = new Date(a.date).getTime();
+    const timeB = new Date(b.date).getTime();
+    const validA = Number.isNaN(timeA) ? 0 : timeA;
+    const validB = Number.isNaN(timeB) ? 0 : timeB;
+    return validB - validA;
+  });
 
   return (
     <section className="article-feed-section" aria-label="Latest Articles Feed">
       {/* Fixed: Reserved layout space for delayed advertisement to prevent CLS */}
-      <div className="ad-banner-slot" style={{ minHeight: 90 }}>
+      <div className="ad-banner-slot">
         {showBanner && <AdBanner />}
       </div>
 
