@@ -11,27 +11,55 @@ export const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isFetchingMore, setIsFetchingMore] = useState<boolean>(false);
   const [hasMore, setHasMore] = useState<boolean>(true);
+  const [headerDate] = useState<string>(() =>
+    new Date().toLocaleDateString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    })
+  );
   const infiniteScrollRef = useRef<HTMLDivElement | null>(null);
 
-  // Fixed: Defer analytics initialization off the initial render path to eliminate main-thread blocking
+  // Fixed: Defer analytics initialization off the initial render path to eliminate main-thread blocking,
+  // supporting scheduler.postTask with background priority, safe setTimeout fallback, and cancellable unmount cleanup
   useEffect(() => {
+    const controller = typeof AbortController !== "undefined" ? new AbortController() : null;
+    let timerId: ReturnType<typeof setTimeout> | null = null;
+
     const initializeAnalytics = () => {
       console.log("[Analytics] Initialized in deferred background task");
     };
 
-    if (
-      "scheduler" in window &&
-      typeof (window as unknown as { scheduler?: { postTask: (cb: () => void, opts: { priority: string }) => void } })
-        .scheduler?.postTask === "function"
-    ) {
-      (
-        window as unknown as { scheduler: { postTask: (cb: () => void, opts: { priority: string }) => void } }
-      ).scheduler.postTask(initializeAnalytics, { priority: "background" });
-    } else if ("requestIdleCallback" in window) {
-      (window as unknown as { requestIdleCallback: (cb: () => void) => number }).requestIdleCallback(initializeAnalytics);
+    const win = window as typeof window & {
+      scheduler?: {
+        postTask: (
+          cb: () => void,
+          opts?: { priority?: "user-blocking" | "user-visible" | "background"; signal?: AbortSignal }
+        ) => Promise<void>;
+      };
+    };
+
+    if (win.scheduler && typeof win.scheduler.postTask === "function") {
+      win.scheduler
+        .postTask(initializeAnalytics, {
+          priority: "background",
+          signal: controller?.signal,
+        })
+        .catch((err: unknown) => {
+          if (err instanceof Error && err.name === "AbortError") return;
+          console.error("[Analytics] Error in deferred task:", err);
+        });
     } else {
-      setTimeout(initializeAnalytics, 0);
+      timerId = setTimeout(initializeAnalytics, 0);
     }
+
+    return () => {
+      controller?.abort();
+      if (timerId !== null) {
+        clearTimeout(timerId);
+      }
+    };
   }, []);
 
   // Simulated initial data loading
@@ -81,12 +109,7 @@ export const App: React.FC = () => {
       <header className="site-header">
         <div className="header-top-bar">
           <div className="header-date">
-            {new Date().toLocaleDateString("en-US", {
-              weekday: "long",
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            })}
+            {headerDate}
           </div>
           <div className="header-tagline">The Premier Technical &amp; Systems Publication</div>
           <div className="header-edition">Edition: Global / English</div>
