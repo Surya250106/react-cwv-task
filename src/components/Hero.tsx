@@ -5,10 +5,10 @@ export const Hero: React.FC = () => {
     <section className="hero-section" id="hero-banner">
       <div className="hero-image-wrapper">
         <img
-          src="/hero.webp"
+          src={`${import.meta.env.BASE_URL}hero.webp`}
           alt="Global Chronicle Special Report - Next-Gen Intelligence & Architecture"
-          width={1200}
-          height={630}
+          width={1920}
+          height={1080}
           fetchPriority="high"
           decoding="async"
         />
