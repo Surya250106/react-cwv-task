@@ -74,6 +74,12 @@ async function generateAssets() {
     .toFile(path.join(publicDir, 'hero.png'));
   console.log('Created public/hero.png');
 
+  // Write WebP hero asset (1920x1080)
+  await sharp(Buffer.from(heroSvg))
+    .webp({ quality: 80 })
+    .toFile(path.join(publicDir, 'hero.webp'));
+  console.log('Created public/hero.webp');
+
   // 2. Generate 12 article thumbnails (800x500)
   const categories = [
     { name: 'AI & Neural Systems', color1: '#1e3a8a', color2: '#3b82f6', icon: '🤖' },

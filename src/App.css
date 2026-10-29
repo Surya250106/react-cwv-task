@@ -213,19 +213,35 @@
   color: var(--text-muted);
 }
 
-/* Ad Banner */
+/* Ad Banner Slot & Wrapper (Reserves space to prevent CLS) */
+.ad-banner-slot {
+  min-height: 146px;
+  margin-bottom: 28px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (max-width: 640px) {
+  .ad-banner-slot {
+    min-height: 122px;
+  }
+}
+
 .ad-banner {
   background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%);
   color: #ffffff;
   border-radius: var(--radius-md);
   padding: 18px 24px;
-  margin-bottom: 28px;
+  margin-bottom: 0;
   box-shadow: var(--shadow-md);
   display: flex;
   flex-direction: column;
   gap: 10px;
   position: relative;
   overflow: hidden;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .ad-banner-badge {
@@ -309,6 +325,7 @@
 .article-thumbnail-container {
   position: relative;
   width: 100%;
+  aspect-ratio: 16 / 10;
   background: #0f172a;
   overflow: hidden;
 }
@@ -398,6 +415,7 @@
   border-radius: 50%;
   width: 36px;
   height: 36px;
+  aspect-ratio: 1 / 1;
   object-fit: cover;
 }
 
