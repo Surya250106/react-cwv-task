@@ -7,7 +7,11 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "analyze": "tsc -b && vite build",
+    "audit": "node scripts/audit.mjs lighthouse-v2-fixed.html",
+    "audit:broken": "node scripts/audit.mjs lighthouse-v1-broken.html",
+    "generate-assets": "node scripts/generate-assets.cjs"
   },
   "dependencies": {
     "react": "^19.2.8",
