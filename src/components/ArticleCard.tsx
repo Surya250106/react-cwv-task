@@ -5,14 +5,27 @@ interface ArticleCardProps {
   article: Article;
 }
 
+const resolveAssetUrl = (url: string) => {
+  if (url.startsWith("/")) {
+    const base = import.meta.env.BASE_URL;
+    const cleanBase = base.endsWith("/") ? base : `${base}/`;
+    return `${cleanBase}${url.slice(1)}`;
+  }
+  return url;
+};
+
 export const ArticleCard: React.FC<ArticleCardProps> = ({ article }) => {
   return (
     <article className="article-card" id={`article-${article.id}`}>
       <div className="article-thumbnail-container">
-        {/* Anti-Pattern 3 (v1): No intrinsic width and height attributes */}
+        {/* Fixed: Intrinsic width and height to prevent CLS */}
         <img
-          src={article.thumbnail}
+          src={resolveAssetUrl(article.thumbnail)}
           alt={article.title}
+          width={800}
+          height={500}
+          loading="lazy"
+          decoding="async"
           className="article-thumbnail"
         />
         {article.badge && (
@@ -31,10 +44,14 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article }) => {
 
         <div className="article-footer">
           <div className="author-container">
-            {/* Anti-Pattern 3 (v1): No intrinsic width and height attributes */}
+            {/* Fixed: Intrinsic width and height to prevent CLS */}
             <img
-              src={article.author.avatar}
+              src={resolveAssetUrl(article.author.avatar)}
               alt={article.author.name}
+              width={36}
+              height={36}
+              loading="lazy"
+              decoding="async"
               className="author-avatar"
             />
             <div className="author-details">

@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from "react";
-// Anti-Pattern 5 (v1): Full lodash import
-import _ from "lodash";
 import type { Article } from "../mockData";
 import { ArticleCard } from "./ArticleCard";
 import { AdBanner } from "./AdBanner";
@@ -10,7 +8,6 @@ interface ArticleGridProps {
 }
 
 export const ArticleGrid: React.FC<ArticleGridProps> = ({ articles }) => {
-  // Anti-Pattern 3 (v1): Late injected ad banner causing layout shift
   const [showBanner, setShowBanner] = useState(false);
 
   useEffect(() => {
@@ -20,17 +17,21 @@ export const ArticleGrid: React.FC<ArticleGridProps> = ({ articles }) => {
     return () => clearTimeout(timer);
   }, []);
 
-  // Anti-Pattern 5 (v1): Using lodash to sort articles
-  const sortedArticles = _.orderBy(
-    articles,
-    ["date"],
-    ["desc"]
-  );
+  // Fixed: Native JavaScript sorting with safe invalid date fallback, eliminating Lodash dependency
+  const sortedArticles = [...articles].sort((a, b) => {
+    const timeA = new Date(a.date).getTime();
+    const timeB = new Date(b.date).getTime();
+    const validA = Number.isNaN(timeA) ? 0 : timeA;
+    const validB = Number.isNaN(timeB) ? 0 : timeB;
+    return validB - validA;
+  });
 
   return (
     <section className="article-feed-section" aria-label="Latest Articles Feed">
-      {/* Anti-Pattern 3 (v1): No reserved space for dynamically injected banner */}
-      {showBanner && <AdBanner />}
+      {/* Fixed: Reserved layout space for delayed advertisement to prevent CLS */}
+      <div className="ad-banner-slot">
+        {showBanner && <AdBanner />}
+      </div>
 
       <div className="article-grid">
         {sortedArticles.map((article) => (
